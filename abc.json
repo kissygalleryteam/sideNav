@@ -1,0 +1,14 @@
+{
+    "name": "sideNav",
+    "version": "1.0",
+    "desc": "基于kissy的侧边导航组件，提供多种出场效果",
+    "cover": "",
+    "tag":"导航",
+    "author": {
+        "name": "颂晨",
+        "email": "season.sxc@gmail.com",
+        "page": "https://github.com/songxc"
+    },
+    "type": "kissy-gallery",
+    "type-url": "http://gallery.kissyui.com/guide"
+}
