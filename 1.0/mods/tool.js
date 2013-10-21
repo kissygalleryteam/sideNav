@@ -4,6 +4,8 @@
 
 KISSY.add(function (S) {
 
+    var $ = S.Node.all;
+
     /**
      * 判断是否支持css3属性
      * @param {String} prop 要判断的css3属性
@@ -30,7 +32,17 @@ KISSY.add(function (S) {
         return false;
     }
 
+    /**
+     * 判断当前浏览器是否IE6
+     */
+    function isIE6() {
+        return $('html').hasClass('.ks-ie6');
+    }
+
     var Tool = {
+
+        // 是否IE6
+        isIE6: isIE6(),
 
         // 是否支持transition
         isSupportTransition: supportCSS3('transition'),
@@ -79,6 +91,28 @@ KISSY.add(function (S) {
                 '-o-filter'      : valStr,
                 'filter'         : valStr
             };
+        },
+
+        /**
+         * 滚动到对应位置
+         */
+        scrollTo: function(node, x, y, duration, easing) {
+            var $node = $(node);
+
+            if ($node.length) {
+
+                // 若duration为0, 则直接滚到对应位置
+                if (!duration) {
+                    $node.scrollTo(x, y);
+                } 
+                // 否则开始动画滚动
+                else {
+                    $node.animate({
+                        'scrollLeft': x,
+                        'scrollTop': y
+                    }, duration/1000, easing);
+                }
+            }
         }
     };
 

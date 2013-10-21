@@ -4,28 +4,171 @@
     <meta charset="utf-8"/>
     <title>sideNav的demo</title>
 </head>
+
+<style type="text/css">
+    
+    html, body, 
+    p, div, h1, h2, h3, h4, h5, h6 {
+        padding: 0;
+        margin: 0;
+    }
+
+    body {
+        line-height: 1;
+        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    }
+
+
+    @-webkit-keyframes blink {
+        0% {
+            opacity: 0;
+            -webkit-transform: scale(1.2);
+        }
+
+        100% {
+            opacity: 1;
+            -webkit-transform: scale(1.0);
+        }
+    }
+
+    .item-1:hover em {
+        -webkit-animation: blink .5s ease-out;
+    }
+
+
+    @-webkit-keyframes blur {
+        0% {
+            opacity: 0;
+            -webkit-filter: blur(3px);
+        }
+
+        100% {
+            opacity: 1;
+            -webkit-filter: blur(0);
+        }
+    }
+
+    .item-2:hover em {
+        -webkit-animation: blur .5s ease-in;
+    }
+
+
+    @-webkit-keyframes fade {
+        0% {
+            opacity: 0;
+        }
+
+        100% {
+            opacity: 1;
+        }
+    }
+
+    .item-3:hover em {
+        -webkit-animation: fade .5s ease-in;
+    }
+
+
+    @-webkit-keyframes rotate {
+        0% {
+            -webkit-transform: scale(0) rotate(-270deg);
+        }
+
+        100% {
+            -webkit-transform: scale(1) rotate(0);
+        }
+    }
+
+    .item-4:hover em {
+        -webkit-animation: rotate .5s ease-in;
+    }
+
+
+    @-webkit-keyframes zoom {
+        0% {
+            -webkit-transform: scale(0);
+        }
+
+        100% {
+            -webkit-transform: scale(1);
+        }
+    }
+
+    .item-5:hover em {
+        -webkit-animation: zoom .5s ease-in;
+    }
+
+
+    #content {
+        padding-left: 100px;
+        background: #333;
+        position: fixed;
+        height: 100%;
+        width: 100%;
+        margin-left: 100px;
+    }
+
+    #sidebar {
+        position: fixed;
+        height: 100%;
+        width: 100px;
+        background: #f50;
+        color: #fff;
+        left: 0;
+        top: 0;
+        z-index: 10;
+        letter-spacing: -3px;
+    }
+
+    .page-title {
+        font-size: 56px;
+        font-weight: 400;
+        margin-top: 10px;
+        text-shadow: 0 0 2px #000;
+    }
+
+    .nav-content {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: auto;
+        width: 440px;
+        height: 150px;
+    }
+
+    .nav-item {
+        float: left;
+        margin: 20px;
+    }
+
+    .nav-item em {
+        float: left;
+        font-size: 40px;
+        line-height: 60px;
+        color: #fff;
+        font-style: normal;
+    }
+
+</style>
+
 <body>
+
+<div id="sidebar">
+    <div class="page-title">Side Nav Demo</div>
+</div>
+
 
 <div id="content">
 
-    <h2>side nav demo</h2>
-    <hr>
-
-    <div class="section section-1">
-        <a href="./index-1.html" target="_blank" class="nav-hd">blink</a>
+    <div class="nav-content">
+        <a href="./index-1.html" target="_blank" class="nav-item item-1"><em>blink</em></a>
+        <a href="./index-2.html" target="_blank" class="nav-item item-2"><em>blur</em></a>
+        <a href="./index-3.html" target="_blank" class="nav-item item-3"><em>fade</em></a>
+        <a href="./index-4.html" target="_blank" class="nav-item item-4"><em>rotate</em></a>
+        <a href="./index-5.html" target="_blank" class="nav-item item-5"><em>zoom</em></a>
     </div>
-    <div class="section section-2">
-        <a href="./index-2.html" target="_blank" class="nav-hd">blur</a>
-    </div>
-    <div class="section section-3">
-        <a href="./index-3.html" target="_blank" class="nav-hd">fade</a>
-    </div>
-    <div class="section section-4">
-        <a href="./index-4.html" target="_blank" class="nav-hd">rotate</a>
-    </div>
-    <div class="section section-5">
-        <a href="./index-5.html" target="_blank" class="nav-hd">zoom</a>
-    </div>
+    
 </div>
 
 </script>

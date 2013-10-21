@@ -16,6 +16,8 @@ gallery/sideNav/1.0/index
 
 KISSY.add('gallery/sideNav/1.0/mods/tool',function (S) {
 
+    var $ = S.Node.all;
+
     /**
      * 判断是否支持css3属性
      * @param {String} prop 要判断的css3属性
@@ -42,7 +44,17 @@ KISSY.add('gallery/sideNav/1.0/mods/tool',function (S) {
         return false;
     }
 
+    /**
+     * 判断当前浏览器是否IE6
+     */
+    function isIE6() {
+        return $('html').hasClass('.ks-ie6');
+    }
+
     var Tool = {
+
+        // 是否IE6
+        isIE6: isIE6(),
 
         // 是否支持transition
         isSupportTransition: supportCSS3('transition'),
@@ -91,6 +103,28 @@ KISSY.add('gallery/sideNav/1.0/mods/tool',function (S) {
                 '-o-filter'      : valStr,
                 'filter'         : valStr
             };
+        },
+
+        /**
+         * 滚动到对应位置
+         */
+        scrollTo: function(node, x, y, duration, easing) {
+            var $node = $(node);
+
+            if ($node.length) {
+
+                // 若duration为0, 则直接滚到对应位置
+                if (!duration) {
+                    $node.scrollTo(x, y);
+                } 
+                // 否则开始动画滚动
+                else {
+                    $node.animate({
+                        'scrollLeft': x,
+                        'scrollTop': y
+                    }, duration/1000, easing);
+                }
+            }
         }
     };
 
@@ -563,7 +597,7 @@ KISSY.add('gallery/sideNav/1.0/mods/blink',function (S, Node, Anim, Base, Tool) 
  * @author songchen<songchen.sxc@taobao.com>
  * @module sideNav
  **/
-KISSY.add('gallery/sideNav/1.0/index',function (S, Node, Anim, Base, Fade, Zoom, Rotate, Blur, Blink) {
+KISSY.add('gallery/sideNav/1.0/index',function (S, Node, Anim, Base, Fade, Zoom, Rotate, Blur, Blink, Tool) {
     
     var EMPTY = '';
     var $ = Node.all;
@@ -599,7 +633,7 @@ KISSY.add('gallery/sideNav/1.0/index',function (S, Node, Anim, Base, Fade, Zoom,
         /* 出现时机 */
         when: {
             /*
-             * 出现时机
+             * 出现时机类型
              * 值类型: int
              * 可选值: 1: 滚动到top高度后出现. 2: 滚动到node节点的时候出现. 3: 过了delay时间后出现. 
              * 默认值: 1
@@ -617,7 +651,7 @@ KISSY.add('gallery/sideNav/1.0/index',function (S, Node, Anim, Base, Fade, Zoom,
              */
             node: '',
             /*
-             * 过了delay时间后出现
+             * delay时长
              * 值类型: int 
              * 默认值: 3000
              */
@@ -668,24 +702,34 @@ KISSY.add('gallery/sideNav/1.0/index',function (S, Node, Anim, Base, Fade, Zoom,
              */
             duration: 300,
             /*
+             * 当前区块class
+             * 值类型: String
+             * 默认值: sn-cur-pannel
+             */
+            curPannelCls: 'sn-cur-pannel',
+            /*
+             * 当前导航class
+             * 值类型: String
+             * 默认值: sn-cur-nav
+             */
+            curNavCls: 'sn-cur-nav',
+            /*
              * 映射规则
              * 值类型: int
              * 默认值: 300
              */
-            rule: [
-                {
-                    /* 
-                     * 导航节点
-                     * 值类型: String|HTMLElement|KISSY.Node|window
-                     */
-                    '': 
-                    /* 
-                     * 内容节点
-                     * 值类型: String|HTMLElement|KISSY.Node|window
-                     */
-                    ''
-                }
-            ]
+            rule: {
+                /* 
+                 * 导航节点
+                 * 值类型: String|HTMLElement|KISSY.Node|window
+                 */
+                '': 
+                /* 
+                 * 内容节点
+                 * 值类型: String|HTMLElement|KISSY.Node|window
+                 */
+                ''
+            }
         }
     };
 
@@ -726,6 +770,7 @@ KISSY.add('gallery/sideNav/1.0/index',function (S, Node, Anim, Base, Fade, Zoom,
                 effectArr = ['fade', 'zoom', 'rotate', 'blur', 'blink', 'slideDown', 'slideUp', 'slideLeft', 'slideRight'],
                 easeArr = ['linear', 'ease', 'ease-in', 'ease-out', 'ease-in-out'];
 
+            // nav node
             if (!$(cfg.node).length) {
                 flag = false;
                 S.log("can't find node.");
@@ -737,7 +782,7 @@ KISSY.add('gallery/sideNav/1.0/index',function (S, Node, Anim, Base, Fade, Zoom,
                 cfg.easing = 'ease';
             }
 
-
+            // when show nav
             if (cfg.when.type == 2 && !$(cfg.when.node).length) {
                 flag = false;
                 S.log("can't find when node.");
@@ -749,7 +794,7 @@ KISSY.add('gallery/sideNav/1.0/index',function (S, Node, Anim, Base, Fade, Zoom,
                 cfg.when.delay = 3000;
             }
 
-
+            // back to top
             if (!S.inArray(cfg.top.easing, easeArr)) {
                 cfg.top.easing = 'ease';
             }
@@ -760,12 +805,18 @@ KISSY.add('gallery/sideNav/1.0/index',function (S, Node, Anim, Base, Fade, Zoom,
                 cfg.top.duration = 300;
             }
 
-
+            // nav map
             if (!S.inArray(cfg.map.easing, easeArr)) {
                 cfg.map.easing = 'ease';
             }
             if (!S.isNumber(cfg.map.duration)) {
                 cfg.map.duration = 300;
+            }
+            if (!cfg.map.curNavCls) {
+                cfg.map.curNavCls = 'sn-cur-nav';
+            }
+            if (!cfg.map.curPannelCls) {
+                cfg.map.curPannelCls = 'sn-cur-pannel';
             }
 
             return flag;
@@ -775,9 +826,10 @@ KISSY.add('gallery/sideNav/1.0/index',function (S, Node, Anim, Base, Fade, Zoom,
          * 初始化运行时环境
          */
         _initCxt: function() {
-            var self = this;
+            var self = this,
+                cfg = self.cfg;
 
-            self.rootNode = $(self.cfg.node);
+            self.rootNode = $(cfg.node);
             self.navHeight = self.rootNode.height();
             self.navWidth = self.rootNode.width();
 
@@ -807,8 +859,32 @@ KISSY.add('gallery/sideNav/1.0/index',function (S, Node, Anim, Base, Fade, Zoom,
                 'height' : self.navHeight
             });
 
-            self.whenNode = $(self.cfg.when.node);
-            self.topNode = $(self.cfg.top.node);
+            self.whenNode = $(cfg.when.node);
+            self.topNode = $(cfg.top.node);
+
+            // 初始化map节点
+            if (cfg.map.enable) {
+
+                self.navNodes = new S.NodeList();
+                self.pannelNodes = new S.NodeList();
+                self.pannelTopArr = [];
+                self.pannelHeightArr = [];
+
+                S.each(cfg.map.rule, function(v, k) {
+
+                    var $k = $(k),
+                        $v = $(v);
+
+                    if ($k.length && $v.length) {
+                        self.navNodes = self.navNodes.add($k);
+                        self.pannelNodes = self.pannelNodes.add($v);
+                        self.pannelTopArr.push($v.offset().top);
+                        self.pannelHeightArr.push($v.outerHeight());
+                    }
+                });
+            }
+
+            self.anim = self._getAnimObj();
         },
 
         /**
@@ -837,7 +913,46 @@ KISSY.add('gallery/sideNav/1.0/index',function (S, Node, Anim, Base, Fade, Zoom,
             } else {
                 self.hide();
             }
-            
+
+            // 导航菜单映射
+            if (cfg.map.enable) {
+
+                var minDif = 999999,
+                    minIndex = 0,
+                    maxTop = 0,
+                    maxIndex = 0;
+
+                S.each(self.pannelTopArr, function(v, k) {
+
+                    var dif1 = scroll - v;
+
+                    // 比当前滚动值小的最小值
+                    if (dif1 >= 0 && Math.abs(dif1) <= minDif) {
+                        minDif = Math.abs(dif1);
+                        minIndex = k;
+                    }
+
+                    // 最大top值
+                    if (maxTop <= v) {
+                        maxTop = v;
+                        maxIndex = k;
+                    }
+
+                });
+
+                // pannel最底部
+                var pannelBottom = self.pannelHeightArr[maxIndex] + self.pannelTopArr[maxIndex];
+
+                // 切换current状态
+                $('.' + cfg.map.curNavCls).removeClass(cfg.map.curNavCls);
+                $('.' + cfg.map.curPannelCls).removeClass(cfg.map.curPannelCls);
+
+                if (scroll < pannelBottom) {
+                    self.navNodes.item(minIndex).addClass(cfg.map.curNavCls);
+                    self.pannelNodes.item(minIndex).addClass(cfg.map.curPannelCls);
+                }
+            }
+
             return true;
         },
 
@@ -863,17 +978,31 @@ KISSY.add('gallery/sideNav/1.0/index',function (S, Node, Anim, Base, Fade, Zoom,
                 self.topNode.on('click', function(e) {
                     e.preventDefault();
 
-                    // 若duration为0, 则直接滚到顶部
-                    if (!cfg.top.duration) {
-                        window.scrollTo(0, 0);
-                    } 
-                    // 否则开始动画滚动
-                    else {
-                        $(window).animate({
-                            'scrollTop': 0
-                        }, cfg.top.duration/1000, cfg.top.easing);
-                    }
+                    Tool.scrollTo(window, 0, 0, cfg.top.duration, cfg.top.easing);
                 });
+            }
+
+            // 导航菜单映射
+            if (cfg.map.enable) {
+
+                // 导航item click
+                self.navNodes.on('click', function(e) {
+                    e.preventDefault();
+
+                    var $this = $(this),
+                        index = self.navNodes.index($this),
+                        $pannel = self.pannelNodes.item(index),
+                        top = self.pannelTopArr[index];
+
+                    Tool.scrollTo(window, 0, top, cfg.map.duration, cfg.map.easing);
+
+                    // 切换current状态
+                    $('.' + cfg.map.curNavCls).removeClass(cfg.map.curNavCls);
+                    $('.' + cfg.map.curPannelCls).removeClass(cfg.map.curPannelCls);
+                    $this.addClass(cfg.map.curNavCls);
+                    $pannel.addClass(cfg.map.curPannelCls);
+                });
+
             }
 
         },
@@ -899,36 +1028,54 @@ KISSY.add('gallery/sideNav/1.0/index',function (S, Node, Anim, Base, Fade, Zoom,
         },
 
         /**
+         * 获取动画对象
+         */
+        _getAnimObj: function() {
+            var self = this,
+                cfg = self.cfg,
+                animObj = Fade;
+
+            // fade
+            if (cfg.effect == 'fade') {
+                animObj = Fade;
+            }
+            // zoom
+            else if (cfg.effect == 'zoom') {
+                animObj = Zoom;
+            }
+            // rotate
+            else if (cfg.effect == 'rotate') {
+                animObj = Rotate;
+            }
+            // blur
+            else if (cfg.effect == 'blur') {
+                animObj = Blur;
+            }
+            // blink
+            else if (cfg.effect == 'blink') {
+                animObj = Blink;
+            }
+            // others
+            else {
+                animObj = Fade;
+            }
+
+            // IE6
+            if (Tool.isIE6) {
+                animObj = Fade;
+            }
+
+            return animObj;
+        },
+
+        /**
          * 重置样式
          */
         _resetStyle: function() {
             var self = this,
                 cfg = self.cfg;
 
-            // fade
-            if (cfg.effect == 'fade') {
-                Fade.reset(self);
-            }
-            // zoom
-            else if (cfg.effect == 'zoom') {
-                Zoom.reset(self);
-            }
-            // rotate
-            else if (cfg.effect == 'rotate') {
-                Rotate.reset(self);
-            }
-            // blur
-            else if (cfg.effect == 'blur') {
-                Blur.reset(self);
-            }
-            // blink
-            else if (cfg.effect == 'blink') {
-                Blink.reset(self);
-            }
-            // others
-            else {
-                Fade.reset(self);
-            }
+            self.anim.reset(self);
         },
 
         /**
@@ -941,30 +1088,7 @@ KISSY.add('gallery/sideNav/1.0/index',function (S, Node, Anim, Base, Fade, Zoom,
             // 停止动画
             self.stopAnim(self.navNode);
 
-            // fade
-            if (cfg.effect == 'fade') {
-                Fade.show(self);
-            }
-            // zoom
-            else if (cfg.effect == 'zoom') {
-                Zoom.show(self);
-            }
-            // rotate
-            else if (cfg.effect == 'rotate') {
-                Rotate.show(self);
-            }
-            // blur
-            else if (cfg.effect == 'blur') {
-                Blur.show(self);
-            }
-            // blink
-            else if (cfg.effect == 'blink') {
-                Blink.show(self);
-            }
-            // others
-            else {
-                Fade.show(self);
-            }
+            self.anim.show(self);
         },
 
         /**
@@ -977,30 +1101,7 @@ KISSY.add('gallery/sideNav/1.0/index',function (S, Node, Anim, Base, Fade, Zoom,
             // 停止动画
             self.stopAnim(self.navNode);
 
-            // fade
-            if (cfg.effect == 'fade') {
-                Fade.hide(self);
-            }
-            // zoom
-            else if (cfg.effect == 'zoom') {
-                Zoom.hide(self);
-            }
-            // rotate
-            else if (cfg.effect == 'rotate') {
-                Rotate.hide(self);
-            }
-            // blur
-            else if (cfg.effect == 'blur') {
-                Blur.hide(self);
-            }
-            // blink
-            else if (cfg.effect == 'blink') {
-                Blink.hide(self);
-            }
-            // others
-            else {
-                Fade.hide(self);
-            }
+            self.anim.hide(self);
         },
 
         /**
@@ -1031,7 +1132,7 @@ KISSY.add('gallery/sideNav/1.0/index',function (S, Node, Anim, Base, Fade, Zoom,
     return SideNav;
 
 }, {
-    requires: ['node', 'anim', 'base', './mods/fade', './mods/zoom', './mods/rotate', './mods/blur', './mods/blink']
+    requires: ['node', 'anim', 'base', './mods/fade', './mods/zoom', './mods/rotate', './mods/blur', './mods/blink', './mods/tool']
 });
 
 
