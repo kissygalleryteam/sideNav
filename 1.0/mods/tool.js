@@ -96,22 +96,18 @@ KISSY.add(function (S) {
         /**
          * 滚动到对应位置
          */
-        scrollTo: function(node, x, y, duration, easing) {
-            var $node = $(node);
+        scrollWindow: function(x, y, duration, easing) {
 
-            if ($node.length) {
-
-                // 若duration为0, 则直接滚到对应位置
-                if (!duration) {
-                    $node.scrollTo(x, y);
-                } 
-                // 否则开始动画滚动
-                else {
-                    $node.animate({
-                        'scrollLeft': x,
-                        'scrollTop': y
-                    }, duration/1000, easing);
-                }
+            // 若duration为0, 则直接滚到对应位置
+            if (!duration) {
+                window.scrollTo(x + 1, y + 1);
+            } 
+            // 否则开始动画滚动
+            else {
+                $(window).animate({
+                    'scrollLeft': x + 1,
+                    'scrollTop': y + 1
+                }, duration/1000, easing);
             }
         }
     };

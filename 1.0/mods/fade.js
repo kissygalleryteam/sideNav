@@ -39,13 +39,11 @@ KISSY.add(function (S, Node, Anim, Base, Tool) {
                 // reset first
                 cxt.navNode.css(resetCss1);
 
-                /**
-                 * add transition, should be later than reset.
-                 */
+                // add transition, should be after reset.
                 S.later(function() {
                     var animCss = Tool.transition('all', cfg.duration, cfg.easing);
                     cxt.navNode.css(animCss);
-                }, 50);
+                }, 10);
 
             } else {
                 cxt.navNode.css(resetCss2);
@@ -60,7 +58,15 @@ KISSY.add(function (S, Node, Anim, Base, Tool) {
 
             // 支持transition属性
             if (Tool.isSupportTransition) {
-                cxt.navNode.css(showCss1);
+                
+                // show root node first
+                cxt.rootNode.show();
+
+                // animation to show nav node, should be after root node showed.
+                S.later(function() {
+                    cxt.navNode.css(showCss1);
+                }, 10);
+
             } else {
                 cxt.navNode.fadeIn(cfg.duration/1000, null, cfg.easing);
             }
@@ -74,7 +80,15 @@ KISSY.add(function (S, Node, Anim, Base, Tool) {
 
             // 支持transition属性
             if (Tool.isSupportTransition) {
+                
+                // animation to hide nav node
                 cxt.navNode.css(hideCss1);
+
+                // hide root node, should be after nav node hidden.
+                S.later(function() {
+                    cxt.rootNode.hide();
+                }, cfg.duration);
+
             } else {
                 cxt.navNode.fadeOut(cfg.duration/1000, null, cfg.easing);
             }
