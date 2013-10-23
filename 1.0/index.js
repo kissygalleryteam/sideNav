@@ -3,7 +3,7 @@
  * @author songchen<songchen.sxc@taobao.com>
  * @module sideNav
  **/
-KISSY.add(function (S, Node, Anim, Base, Fade, Zoom, Rotate, Blur, Blink, Tool) {
+KISSY.add(function (S, Node, Anim, Base, Normal, Fade, Zoom, Rotate, Blur, Blink, Tool) {
     
     var EMPTY = '';
     var $ = Node.all;
@@ -18,7 +18,7 @@ KISSY.add(function (S, Node, Anim, Base, Fade, Zoom, Rotate, Blur, Blink, Tool) 
         /*
          * 效果类型
          * 值类型: String
-         * 可选值: fade, zoom, rotate, blur, blink, slideDown, slideUp, slideLeft, slideRight
+         * 可选值: normal, fade, zoom, rotate, blur, blink
          * 默认值: zoom
          */
         effect: 'zoom',
@@ -35,13 +35,19 @@ KISSY.add(function (S, Node, Anim, Base, Fade, Zoom, Rotate, Blur, Blink, Tool) 
          * 默认值: 300
          */
         duration: 300,
+        /*
+         * 使用KISSY.buffer机制控制监听scroll事件的频率
+         * 值类型: int
+         * 默认值: 100
+         */
+        frequency: 100,
 
         /* 出现时机 */
         when: {
             /*
              * 出现时机类型
              * 值类型: int
-             * 可选值: 1: 滚动到top高度后出现. 2: 滚动到node节点的时候出现. 3: 过了delay时间后出现. 
+             * 可选值: 1: 滚动到top高度后出现. 2: node节点开始出现的时候显示. 3: 过了delay时间后出现. 4: node节点开始被卷去的时候显示.
              * 默认值: 1
              */
             type: 1,
@@ -59,9 +65,9 @@ KISSY.add(function (S, Node, Anim, Base, Fade, Zoom, Rotate, Blur, Blink, Tool) 
             /*
              * delay时长
              * 值类型: int 
-             * 默认值: 3000
+             * 默认值: 1000
              */
-            delay: 3000
+            delay: 1000
         },
 
         /* 返回顶部 */
@@ -173,7 +179,7 @@ KISSY.add(function (S, Node, Anim, Base, Fade, Zoom, Rotate, Blur, Blink, Tool) 
             var self = this,
                 cfg = self.cfg,
                 flag = true,
-                effectArr = ['fade', 'zoom', 'rotate', 'blur', 'blink', 'slideDown', 'slideUp', 'slideLeft', 'slideRight'],
+                effectArr = ['normal', 'fade', 'zoom', 'rotate', 'blur', 'blink'],
                 easeArr = ['linear', 'ease', 'ease-in', 'ease-out', 'ease-in-out'];
 
             // nav node
@@ -187,9 +193,13 @@ KISSY.add(function (S, Node, Anim, Base, Fade, Zoom, Rotate, Blur, Blink, Tool) 
             if (!S.inArray(cfg.easing, easeArr)) {
                 cfg.easing = 'ease';
             }
+            if (!S.isNumber(cfg.frequency)) {
+                cfg.frequency = 100;
+            }
 
             // when show nav
-            if (cfg.when.type == 2 && !$(cfg.when.node).length) {
+            if ((cfg.when.type == 2 || cfg.when.type == 4) 
+                && !$(cfg.when.node).length) {
                 flag = false;
                 S.log("can't find when node.");
             }
@@ -273,8 +283,6 @@ KISSY.add(function (S, Node, Anim, Base, Fade, Zoom, Rotate, Blur, Blink, Tool) 
 
                 self.navNodes = new S.NodeList();
                 self.pannelNodes = new S.NodeList();
-                self.pannelTopArr = [];
-                self.pannelHeightArr = [];
 
                 S.each(cfg.map.rule, function(v, k) {
 
@@ -284,10 +292,9 @@ KISSY.add(function (S, Node, Anim, Base, Fade, Zoom, Rotate, Blur, Blink, Tool) 
                     if ($k.length && $v.length) {
                         self.navNodes = self.navNodes.add($k);
                         self.pannelNodes = self.pannelNodes.add($v);
-                        self.pannelTopArr.push($v.offset().top);
-                        self.pannelHeightArr.push($v.outerHeight());
                     }
                 });
+
             }
 
             self.anim = self._getAnimObj();
@@ -303,59 +310,83 @@ KISSY.add(function (S, Node, Anim, Base, Fade, Zoom, Rotate, Blur, Blink, Tool) 
                 scroll = document.body.scrollTop 
                 || (document.documentElement && document.documentElement.scrollTop);
 
-            // 滚动一定高度后出现
-            if (cfg.when.type == 1) {
-                dif = cfg.when.top;
-            }
+            // 非延迟出现
+            if (cfg.when.type != 3) {
 
-            // 滚到指定节点后出现
-            if (cfg.when.type == 2) {
-                dif = self.whenNode.offset().top - $(window).height();
-            }
+                // 滚到一定高度后出现
+                if (cfg.when.type == 1) {
+                    dif = cfg.when.top;
+                }
 
-            // 切换导航的显示/隐藏状态
-            if (scroll >= dif) {
-                self.show();
-            } else {
-                self.hide();
+                // 滚到指定节点出现后显示
+                if (cfg.when.type == 2) {
+                    dif = self.whenNode.offset().top - $(window).height();
+                }
+
+                // 滚到指定节点后开始被卷去后显示
+                if (cfg.when.type == 4) {
+                    dif = self.whenNode.offset().top;
+                }
+
+                // 切换导航的显示/隐藏状态
+                if (scroll >= dif) {
+                    self.show();
+                } else {
+                    self.hide();
+                }
             }
 
             // 导航菜单映射
             if (cfg.map.enable) {
 
                 var minDif = 999999,
-                    minIndex = 0,
+                    targetIndex = 0,
                     maxTop = 0,
-                    maxIndex = 0;
+                    maxIndex = 0,
+                    minTop = 999999,
+                    minIndex = 0;
 
-                S.each(self.pannelTopArr, function(v, k) {
+                S.each(self.pannelNodes, function(v, k) {
 
-                    var dif1 = scroll - v;
+                    var $v = $(v),
+                        top = $v.offset().top,
+                        dif1 = scroll - top;
 
                     // 比当前滚动值小的最小值
                     if (dif1 >= 0 && Math.abs(dif1) <= minDif) {
                         minDif = Math.abs(dif1);
-                        minIndex = k;
+                        targetIndex = k;
                     }
 
                     // 最大top值
-                    if (maxTop <= v) {
-                        maxTop = v;
+                    if (maxTop <= top) {
+                        maxTop = top;
                         maxIndex = k;
+                    }
+
+                    // 最小top值
+                    if (minTop >= top) {
+                        minTop = top;
+                        minIndex = k;
                     }
 
                 });
 
-                // pannel最底部
-                var pannelBottom = self.pannelHeightArr[maxIndex] + self.pannelTopArr[maxIndex];
+                var maxNode = self.pannelNodes.item(maxIndex),
+                    minNode = self.pannelNodes.item(minIndex);
+                    // pannel最底部
+                    pannelBottom = maxNode.height() + maxNode.offset().top,
+                    // pannel最顶部
+                    pannelTop = minNode.offset().top - $(window).height();
 
-                // 切换current状态
+                // 去除current状态
                 $('.' + cfg.map.curNavCls).removeClass(cfg.map.curNavCls);
                 $('.' + cfg.map.curPannelCls).removeClass(cfg.map.curPannelCls);
 
-                if (scroll < pannelBottom) {
-                    self.navNodes.item(minIndex).addClass(cfg.map.curNavCls);
-                    self.pannelNodes.item(minIndex).addClass(cfg.map.curPannelCls);
+                // 是否应该加上current状态
+                if (scroll < pannelBottom && scroll > pannelTop) {
+                    self.navNodes.item(targetIndex).addClass(cfg.map.curNavCls);
+                    self.pannelNodes.item(targetIndex).addClass(cfg.map.curPannelCls);
                 }
             }
 
@@ -369,12 +400,13 @@ KISSY.add(function (S, Node, Anim, Base, Fade, Zoom, Rotate, Blur, Blink, Tool) 
             var self = this,
                 cfg = self.cfg;
 
-            var delayFunc = S.buffer(self._scrollCallBack, 100, this);
+            var delayFunc = S.buffer(self._scrollCallBack, cfg.frequency, this);
+
+            // 先调用一次
+            delayFunc();
 
             // 窗口滚动
-            $(window).on('load', function(e) {
-                self._scrollCallBack();
-            }).on('scroll resize', function(e) {
+            $(window).on('scroll resize', function(e) {
                 delayFunc();
             });
 
@@ -384,7 +416,7 @@ KISSY.add(function (S, Node, Anim, Base, Fade, Zoom, Rotate, Blur, Blink, Tool) 
                 self.topNode.on('click', function(e) {
                     e.preventDefault();
 
-                    Tool.scrollTo(window, 0, 0, cfg.top.duration, cfg.top.easing);
+                    Tool.scrollWindow(0, 0, cfg.top.duration, cfg.top.easing);
                 });
             }
 
@@ -398,9 +430,9 @@ KISSY.add(function (S, Node, Anim, Base, Fade, Zoom, Rotate, Blur, Blink, Tool) 
                     var $this = $(this),
                         index = self.navNodes.index($this),
                         $pannel = self.pannelNodes.item(index),
-                        top = self.pannelTopArr[index];
+                        top = $pannel.offset().top;
 
-                    Tool.scrollTo(window, 0, top, cfg.map.duration, cfg.map.easing);
+                    Tool.scrollWindow(0, top, cfg.map.duration, cfg.map.easing);
 
                     // 切换current状态
                     $('.' + cfg.map.curNavCls).removeClass(cfg.map.curNavCls);
@@ -410,7 +442,6 @@ KISSY.add(function (S, Node, Anim, Base, Fade, Zoom, Rotate, Blur, Blink, Tool) 
                 });
 
             }
-
         },
 
         /**
@@ -441,8 +472,12 @@ KISSY.add(function (S, Node, Anim, Base, Fade, Zoom, Rotate, Blur, Blink, Tool) 
                 cfg = self.cfg,
                 animObj = Fade;
 
+            // normal
+            if (cfg.effect == 'normal') {
+                animObj = Normal;
+            }
             // fade
-            if (cfg.effect == 'fade') {
+            else if (cfg.effect == 'fade') {
                 animObj = Fade;
             }
             // zoom
@@ -466,9 +501,9 @@ KISSY.add(function (S, Node, Anim, Base, Fade, Zoom, Rotate, Blur, Blink, Tool) 
                 animObj = Fade;
             }
 
-            // IE6
-            if (Tool.isIE6) {
-                animObj = Fade;
+            // IE6 只支持Normal和Fade效果
+            if (Tool.isIE6 && animObj != Fade) {
+                animObj = Normal;
             }
 
             return animObj;
@@ -538,7 +573,7 @@ KISSY.add(function (S, Node, Anim, Base, Fade, Zoom, Rotate, Blur, Blink, Tool) 
     return SideNav;
 
 }, {
-    requires: ['node', 'anim', 'base', './mods/fade', './mods/zoom', './mods/rotate', './mods/blur', './mods/blink', './mods/tool']
+    requires: ['node', 'anim', 'base', './mods/normal', './mods/fade', './mods/zoom', './mods/rotate', './mods/blur', './mods/blink', './mods/tool']
 });
 
 
