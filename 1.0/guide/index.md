@@ -144,10 +144,95 @@ scroll事件的触发频率, 使用KISSY.buffer机制实现, 单位: ms, 默认�
 (map属性子配置) 导航与内容的映射规则, 数据格式为键值对形式, 例如: {'.nav-item-1': '.section-1'}, 具体配置可参考示例
 
 
+## 依赖DOM结构
+
+![sample image](http://gtms01.alicdn.com/tps/i1/T1tAz6FX4XXXXYCIzP-1366-683.png)
+
+如图所示, 要实现导航距内容区块固定距离( [Demo](http://gallery.kissyui.com/sideNav/1.0/demo/sample.html) ), 暂时有两种布局方案: 
+
+ - 方案一: 
+
+        <style type="text/css">
+        #content {
+            width: 990px;
+            height: 2000px;
+            margin: 0 auto;
+            background: #eee;
+            position: relative;
+        }
+
+        .sn-side-nav-1 {
+            width: 80px;
+            height: 80px;
+            overflow: hidden;
+            background: #f50;
+            color: #fff;
+            line-height: 80px;
+            text-align: center;
+            position: fixed;
+            left: 50%;
+            bottom: 400px;
+            margin-left: 525px;
+            /* IE6 fixed */
+            _position: absolute;
+            _bottom: auto;
+            _top: expression(documentElement.scrollTop + documentElement.clientHeight - this.offsetHeight - 400);
+        }
+        </style>
+
+        <div id="content">
+            <div class="content-label">content</div>
+            <div id="J_SnSideNav1" class="sn-side-nav-1">布局一</div>
+        </div>
+
+
+ - 方案二: 
+
+        <style type="text/css">
+        #content {
+            width: 990px;
+            height: 2000px;
+            margin: 0 auto;
+            background: #eee;
+            position: relative;
+        }
+
+        .side-nav-wrapper {
+            position: absolute;
+            right: -30px;
+            top: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .sn-side-nav-2 {
+            width: 80px;
+            height: 80px;
+            overflow: hidden;
+            background: #f50;
+            color: #fff;
+            line-height: 80px;
+            text-align: center;
+            position: fixed;
+            bottom: 200px;
+            /* IE6 fixed */
+            _position: absolute;
+            _bottom: auto;
+            _top: expression(documentElement.scrollTop + documentElement.clientHeight - this.offsetHeight - 200);
+        }
+        </style>
+
+        <div id="content">
+            <div class="content-label">content</div>
+            <div class="side-nav-wrapper">
+                <div id="J_SnSideNav2" class="sn-side-nav-2">布局二</div>
+            </div>
+        </div>
+
 
 ## 使用示例
 
-1. 出场模式: normal, 出场时机: 1秒后出场, [Demo](http://gallery.kissyui.com/sideNav/1.0/demo/normal.html)
+1. 出场模式: normal, 出场时机: 1秒后出场,  *[Demo](http://gallery.kissyui.com/sideNav/1.0/demo/normal.html)*
 
         S.use('gallery/sideNav/1.0/index', function (S, SideNav) {
             new SideNav({
@@ -180,7 +265,7 @@ scroll事件的触发频率, 使用KISSY.buffer机制实现, 单位: ms, 默认�
             });
         });
 
-2. 出场模式: blink, 出场时机: 滚动200px后出场, [Demo](http://gallery.kissyui.com/sideNav/1.0/demo/blink.html)
+2. 出场模式: blink, 出场时机: 滚动200px后出场,  *[Demo](http://gallery.kissyui.com/sideNav/1.0/demo/blink.html)*
 
         S.use('gallery/sideNav/1.0/index', function (S, SideNav) {
             new SideNav({
@@ -215,7 +300,7 @@ scroll事件的触发频率, 使用KISSY.buffer机制实现, 单位: ms, 默认�
             });
         });
 
-3. 出场模式: blur, 出场时机: section-1开始被卷去的时候出场, [Demo](http://gallery.kissyui.com/sideNav/1.0/demo/blur.html)
+3. 出场模式: blur, 出场时机: section-1开始被卷去的时候出场,  *[Demo](http://gallery.kissyui.com/sideNav/1.0/demo/blur.html)*
 
         S.use('gallery/sideNav/1.0/index', function (S, SideNav) {
             new SideNav({
@@ -250,7 +335,7 @@ scroll事件的触发频率, 使用KISSY.buffer机制实现, 单位: ms, 默认�
             });
         });
 
-4. 出场模式: fade, 出场时机: section-2开始出现时出场, [Demo](http://gallery.kissyui.com/sideNav/1.0/demo/fade.html)
+4. 出场模式: fade, 出场时机: section-2开始出现时出场,  *[Demo](http://gallery.kissyui.com/sideNav/1.0/demo/fade.html)*
 
         S.use('gallery/sideNav/1.0/index', function (S, SideNav) {
             new SideNav({
@@ -285,7 +370,7 @@ scroll事件的触发频率, 使用KISSY.buffer机制实现, 单位: ms, 默认�
             });
         });
 
-5. 出场模式: rotate, 出场时机: 滚动200px后出现, [Demo](http://gallery.kissyui.com/sideNav/1.0/demo/rotate.html)
+5. 出场模式: rotate, 出场时机: 滚动200px后出现,  *[Demo](http://gallery.kissyui.com/sideNav/1.0/demo/rotate.html)*
         
         S.use('gallery/sideNav/1.0/index', function (S, SideNav) {
             new SideNav({
@@ -320,7 +405,7 @@ scroll事件的触发频率, 使用KISSY.buffer机制实现, 单位: ms, 默认�
             });
         });
 
-6. 出场模式: zoom, 出场时机: 滚动200px后出现, [Demo](http://gallery.kissyui.com/sideNav/1.0/demo/zoom.html)
+6. 出场模式: zoom, 出场时机: 滚动200px后出现,  *[Demo](http://gallery.kissyui.com/sideNav/1.0/demo/zoom.html)*
 
         S.use('gallery/sideNav/1.0/index', function (S, SideNav) {
             new SideNav({

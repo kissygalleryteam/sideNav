@@ -128,7 +128,7 @@ KISSY.add('gallery/sideNav/1.0/mods/tool',function (S) {
     return Tool;
 });
 /**
- * fade animation
+ * normal
  */
 
 KISSY.add('gallery/sideNav/1.0/mods/normal',function (S, Node, Anim, Base, Tool) {
@@ -189,6 +189,9 @@ KISSY.add('gallery/sideNav/1.0/mods/fade',function (S, Node, Anim, Base, Tool) {
 	var EMPTY = '';
     var $ = Node.all;
 
+    // 是否正在运行动画
+    var isCSS3Running = false;
+
     // 支持css3
     var resetCss1 = {
     	'opacity' : '0',
@@ -219,10 +222,10 @@ KISSY.add('gallery/sideNav/1.0/mods/fade',function (S, Node, Anim, Base, Tool) {
             // 支持transition
             if (Tool.isSupportTransition) {
 
-                // reset first
+                // 对 navNode 进行 reset
                 cxt.navNode.css(resetCss1);
 
-                // add transition, should be after reset.
+                // 设定 CSS3 动画, 必须在 reset 后隔段时间执行
                 S.later(function() {
                     var animCss = Tool.transition('all', cfg.duration, cfg.easing);
                     cxt.navNode.css(animCss);
@@ -242,13 +245,20 @@ KISSY.add('gallery/sideNav/1.0/mods/fade',function (S, Node, Anim, Base, Tool) {
             // 支持transition属性
             if (Tool.isSupportTransition) {
                 
-                // show root node first
+                // 先展示 rootNode
                 cxt.rootNode.show();
 
-                // animation to show nav node, should be after root node showed.
+                // 再运行 navNode 的动画, 必须在 rootNode 出现后隔段时间执行
                 S.later(function() {
+                    // 标记动画正在执行
+                    isCSS3Running = true;
                     cxt.navNode.css(showCss1);
                 }, 10);
+
+                // 取消标记
+                S.later(function() {
+                    isCSS3Running = false;
+                }, 10 + cfg.duration);
 
             } else {
                 cxt.navNode.fadeIn(cfg.duration/1000, null, cfg.easing);
@@ -264,12 +274,17 @@ KISSY.add('gallery/sideNav/1.0/mods/fade',function (S, Node, Anim, Base, Tool) {
             // 支持transition属性
             if (Tool.isSupportTransition) {
                 
-                // animation to hide nav node
+                // 先隐藏 navNode
                 cxt.navNode.css(hideCss1);
 
-                // hide root node, should be after nav node hidden.
+                // 再隐藏 rootNode , 必须在 navNode 消失后隔段时间执行
                 S.later(function() {
-                    cxt.rootNode.hide();
+
+                    // 当前没有动画在执行
+                    if (!isCSS3Running) {
+                        cxt.rootNode.hide();
+                    }
+                    
                 }, cfg.duration);
 
             } else {
@@ -289,6 +304,9 @@ KISSY.add('gallery/sideNav/1.0/mods/fade',function (S, Node, Anim, Base, Tool) {
 KISSY.add('gallery/sideNav/1.0/mods/zoom',function (S, Node, Anim, Base, Tool) {
 	var EMPTY = '';
     var $ = Node.all;
+
+    // 是否正在运行动画
+    var isCSS3Running = false;
 
     var resetCss1 = S.merge(Tool.transform('scale(0)'), {
         'display' : 'block'
@@ -317,10 +335,10 @@ KISSY.add('gallery/sideNav/1.0/mods/zoom',function (S, Node, Anim, Base, Tool) {
             if (Tool.isSupportTransform 
                 && Tool.isSupportTransition) {
 
-                // reset first
+                // 对 navNode 进行 reset
                 cxt.navNode.css(resetCss1);
 
-                // add transition, should be after reset.
+                // 设定 CSS3 动画, 必须在 reset 后隔段时间执行
                 S.later(function() {
                     var animCss = Tool.transition('all', cfg.duration, cfg.easing);
                     cxt.navNode.css(animCss);
@@ -341,13 +359,20 @@ KISSY.add('gallery/sideNav/1.0/mods/zoom',function (S, Node, Anim, Base, Tool) {
             if (Tool.isSupportTransform 
                 && Tool.isSupportTransition) {
 
-                // show root node first
+                // 先展示 rootNode
                 cxt.rootNode.show();
 
-                // animation to show nav node, should be after root node showed.
+                // 再运行 navNode 的动画, 必须在 rootNode 出现后隔段时间执行
                 S.later(function() {
+                    // 标记动画正在执行
+                    isCSS3Running = true;
                     cxt.navNode.css(showCss1);
                 }, 10);
+
+                // 取消标记
+                S.later(function() {
+                    isCSS3Running = false;
+                }, 10 + cfg.duration);
 
             } else {
                 cxt.navNode.animate({
@@ -367,12 +392,17 @@ KISSY.add('gallery/sideNav/1.0/mods/zoom',function (S, Node, Anim, Base, Tool) {
             if (Tool.isSupportTransform 
                 && Tool.isSupportTransition) {
 
-                // animation to hide nav node
+                // 先隐藏 navNode
                 cxt.navNode.css(hideCss1);
 
-                // hide root node, should be after nav node hidden.
+                // 再隐藏 rootNode , 必须在 navNode 消失后隔段时间执行
                 S.later(function() {
-                    cxt.rootNode.hide();
+
+                    // 当前没有动画在执行
+                    if (!isCSS3Running) {
+                        cxt.rootNode.hide();
+                    }
+                    
                 }, cfg.duration);
 
             } else {
@@ -395,6 +425,9 @@ KISSY.add('gallery/sideNav/1.0/mods/zoom',function (S, Node, Anim, Base, Tool) {
 KISSY.add('gallery/sideNav/1.0/mods/rotate',function (S, Node, Anim, Base, Tool) {
 	var EMPTY = '';
     var $ = Node.all;
+
+    // 是否正在运行动画
+    var isCSS3Running = false;
 
     var resetCss1 = S.merge(Tool.transform('scale(0) rotate(-270deg)'), {
         'display' : 'block'
@@ -423,10 +456,10 @@ KISSY.add('gallery/sideNav/1.0/mods/rotate',function (S, Node, Anim, Base, Tool)
             if (Tool.isSupportTransform 
                 && Tool.isSupportTransition) {
 
-                // reset first
+                // 对 navNode 进行 reset
                 cxt.navNode.css(resetCss1);
 
-                // add transition, should be after reset.
+                // 设定 CSS3 动画, 必须在 reset 后隔段时间执行
                 S.later(function() {
                     var animCss = Tool.transition('all', cfg.duration, cfg.easing);
                     cxt.navNode.css(animCss);
@@ -447,13 +480,20 @@ KISSY.add('gallery/sideNav/1.0/mods/rotate',function (S, Node, Anim, Base, Tool)
             if (Tool.isSupportTransform 
                 && Tool.isSupportTransition) {
 
-                // show root node first
+                // 先展示 rootNode
                 cxt.rootNode.show();
 
-                // animation to show nav node, should be after root node showed.
+                // 再运行 navNode 的动画, 必须在 rootNode 出现后隔段时间执行
                 S.later(function() {
+                    // 标记动画正在执行
+                    isCSS3Running = true;
                     cxt.navNode.css(showCss1);
                 }, 10);
+
+                // 取消标记
+                S.later(function() {
+                    isCSS3Running = false;
+                }, 10 + cfg.duration);
 
             } else {
                 cxt.navNode.animate({
@@ -473,12 +513,17 @@ KISSY.add('gallery/sideNav/1.0/mods/rotate',function (S, Node, Anim, Base, Tool)
             if (Tool.isSupportTransform 
                 && Tool.isSupportTransition) {
 
-                // animation to hide nav node
+                // 先隐藏 navNode
                 cxt.navNode.css(hideCss1);
 
-                // hide root node, should be after nav node hidden.
+                // 再隐藏 rootNode , 必须在 navNode 消失后隔段时间执行
                 S.later(function() {
-                    cxt.rootNode.hide();
+
+                    // 当前没有动画在执行
+                    if (!isCSS3Running) {
+                        cxt.rootNode.hide();
+                    }
+                    
                 }, cfg.duration);
 
             } else {
@@ -501,6 +546,9 @@ KISSY.add('gallery/sideNav/1.0/mods/rotate',function (S, Node, Anim, Base, Tool)
 KISSY.add('gallery/sideNav/1.0/mods/blur',function (S, Node, Anim, Base, Tool) {
 	var EMPTY = '';
     var $ = Node.all;
+
+    // 是否正在运行动画
+    var isCSS3Running = false;
 
     var resetCss1 = S.merge(Tool.filter('blur(5px)'), {
         'opacity' : '0',
@@ -538,10 +586,10 @@ KISSY.add('gallery/sideNav/1.0/mods/blur',function (S, Node, Anim, Base, Tool) {
                     'height' : cxt.navHeight + 10
                 });
 
-                // reset first
+                // 对 navNode 进行 reset
                 cxt.navNode.css(resetCss1);
 
-                // add transition, should be after reset.
+                // 设定 CSS3 动画, 必须在 reset 后隔段时间执行
                 S.later(function() {
                     var animCss = Tool.transition('all', cfg.duration, cfg.easing);
                     cxt.navNode.css(animCss);
@@ -562,13 +610,20 @@ KISSY.add('gallery/sideNav/1.0/mods/blur',function (S, Node, Anim, Base, Tool) {
             if (Tool.isSupportFilter 
                 && Tool.isSupportTransition) {
 
-                // show root node first
+                // 先展示 rootNode
                 cxt.rootNode.show();
 
-                // animation to show nav node, should be after root node showed.
+                // 再运行 navNode 的动画, 必须在 rootNode 出现后隔段时间执行
                 S.later(function() {
+                    // 标记动画正在执行
+                    isCSS3Running = true;
                     cxt.navNode.css(showCss1);
                 }, 10);
+
+                // 取消标记
+                S.later(function() {
+                    isCSS3Running = false;
+                }, 10 + cfg.duration);
 
             } else {
                 cxt.navNode.fadeIn(cfg.duration/1000, null, cfg.easing);
@@ -585,12 +640,17 @@ KISSY.add('gallery/sideNav/1.0/mods/blur',function (S, Node, Anim, Base, Tool) {
             if (Tool.isSupportFilter 
                 && Tool.isSupportTransition) {
 
-                // animation to hide nav node
+                // 先隐藏 navNode
                 cxt.navNode.css(hideCss1);
 
-                // hide root node, should be after nav node hidden.
+                // 再隐藏 rootNode , 必须在 navNode 消失后隔段时间执行
                 S.later(function() {
-                    cxt.rootNode.hide();
+
+                    // 当前没有动画在执行
+                    if (!isCSS3Running) {
+                        cxt.rootNode.hide();
+                    }
+                    
                 }, cfg.duration);
                 
             } else {
@@ -610,6 +670,9 @@ KISSY.add('gallery/sideNav/1.0/mods/blur',function (S, Node, Anim, Base, Tool) {
 KISSY.add('gallery/sideNav/1.0/mods/blink',function (S, Node, Anim, Base, Tool) {
 	var EMPTY = '';
     var $ = Node.all;
+
+    // 是否正在运行动画
+    var isCSS3Running = false;
 
     var resetCss1 = S.merge(Tool.transform('scale(1.2)'), {
         'opacity' : '0',
@@ -640,15 +703,15 @@ KISSY.add('gallery/sideNav/1.0/mods/blink',function (S, Node, Anim, Base, Tool) 
             if (Tool.isSupportTransform 
                 && Tool.isSupportTransition) {
 
-                // reset first
+                // 对 navNode 进行 reset
                 cxt.navNode.css(resetCss1);
 
-                // add transition, should be after reset.
+                // 设定 CSS3 动画, 必须在 reset 后隔段时间执行
                 S.later(function() {
                     var animCss = Tool.transition('all', cfg.duration, cfg.easing);
                     cxt.navNode.css(animCss);
                 }, 10);
-                
+
             } else {
                 cxt.navNode.css(resetCss2);
             }
@@ -664,13 +727,20 @@ KISSY.add('gallery/sideNav/1.0/mods/blink',function (S, Node, Anim, Base, Tool) 
             if (Tool.isSupportTransform 
                 && Tool.isSupportTransition) {
 
-                // show root node first
+                // 先展示 rootNode
                 cxt.rootNode.show();
 
-                // animation to show nav node, should be after root node showed.
+                // 再运行 navNode 的动画, 必须在 rootNode 出现后隔段时间执行
                 S.later(function() {
+                    // 标记动画正在执行
+                    isCSS3Running = true;
                     cxt.navNode.css(showCss1);
                 }, 10);
+
+                // 取消标记
+                S.later(function() {
+                    isCSS3Running = false;
+                }, 10 + cfg.duration);
 
             } else {
                 cxt.navNode.fadeIn(cfg.duration/1000, null, cfg.easing);
@@ -687,12 +757,17 @@ KISSY.add('gallery/sideNav/1.0/mods/blink',function (S, Node, Anim, Base, Tool) 
             if (Tool.isSupportTransform 
                 && Tool.isSupportTransition) {
 
-                // animation to hide nav node
+                // 先隐藏 navNode
                 cxt.navNode.css(hideCss1);
 
-                // hide root node, should be after nav node hidden.
+                // 再隐藏 rootNode , 必须在 navNode 消失后隔段时间执行
                 S.later(function() {
-                    cxt.rootNode.hide();
+
+                    // 当前没有动画在执行
+                    if (!isCSS3Running) {
+                        cxt.rootNode.hide();
+                    }
+                    
                 }, cfg.duration);
 
             } else {
@@ -1109,10 +1184,11 @@ KISSY.add('gallery/sideNav/1.0/index',function (S, Node, Anim, Base, Normal, Fad
 
             var delayFunc = S.buffer(self._scrollCallBack, cfg.frequency, this);
 
+            // 先调用一次
+            delayFunc();
+
             // 窗口滚动
-            $(window).on('load', function(e) {
-                self._scrollCallBack();
-            }).on('scroll resize', function(e) {
+            $(window).on('scroll resize', function(e) {
                 delayFunc();
             });
 
@@ -1148,7 +1224,6 @@ KISSY.add('gallery/sideNav/1.0/index',function (S, Node, Anim, Base, Normal, Fad
                 });
 
             }
-
         },
 
         /**

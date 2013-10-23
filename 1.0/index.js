@@ -402,10 +402,11 @@ KISSY.add(function (S, Node, Anim, Base, Normal, Fade, Zoom, Rotate, Blur, Blink
 
             var delayFunc = S.buffer(self._scrollCallBack, cfg.frequency, this);
 
+            // 先调用一次
+            delayFunc();
+
             // 窗口滚动
-            $(window).on('load', function(e) {
-                self._scrollCallBack();
-            }).on('scroll resize', function(e) {
+            $(window).on('scroll resize', function(e) {
                 delayFunc();
             });
 
@@ -441,7 +442,6 @@ KISSY.add(function (S, Node, Anim, Base, Normal, Fade, Zoom, Rotate, Blur, Blink
                 });
 
             }
-
         },
 
         /**

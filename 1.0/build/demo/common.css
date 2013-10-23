@@ -86,6 +86,7 @@ body {
     right: -50px;
     top: 0;
     width: 0;
+    height: 0;
 }
 
 .side-nav {
@@ -96,7 +97,8 @@ body {
     display: none;
     text-align: center;
     _position: absolute;
-    _top: expression(documentElement.scrollTop + documentElement.clientHeight-this.offsetHeight-130);
+    _bottom: auto;
+    _top: expression(documentElement.scrollTop + documentElement.clientHeight - this.offsetHeight - 150);
 }
 
 .side-nav a {

@@ -6,6 +6,9 @@ KISSY.add(function (S, Node, Anim, Base, Tool) {
 	var EMPTY = '';
     var $ = Node.all;
 
+    // 是否正在运行动画
+    var isCSS3Running = false;
+
     var resetCss1 = S.merge(Tool.transform('scale(1.2)'), {
         'opacity' : '0',
         'display' : 'block'
@@ -35,15 +38,15 @@ KISSY.add(function (S, Node, Anim, Base, Tool) {
             if (Tool.isSupportTransform 
                 && Tool.isSupportTransition) {
 
-                // reset first
+                // 对 navNode 进行 reset
                 cxt.navNode.css(resetCss1);
 
-                // add transition, should be after reset.
+                // 设定 CSS3 动画, 必须在 reset 后隔段时间执行
                 S.later(function() {
                     var animCss = Tool.transition('all', cfg.duration, cfg.easing);
                     cxt.navNode.css(animCss);
                 }, 10);
-                
+
             } else {
                 cxt.navNode.css(resetCss2);
             }
@@ -59,13 +62,20 @@ KISSY.add(function (S, Node, Anim, Base, Tool) {
             if (Tool.isSupportTransform 
                 && Tool.isSupportTransition) {
 
-                // show root node first
+                // 先展示 rootNode
                 cxt.rootNode.show();
 
-                // animation to show nav node, should be after root node showed.
+                // 再运行 navNode 的动画, 必须在 rootNode 出现后隔段时间执行
                 S.later(function() {
+                    // 标记动画正在执行
+                    isCSS3Running = true;
                     cxt.navNode.css(showCss1);
                 }, 10);
+
+                // 取消标记
+                S.later(function() {
+                    isCSS3Running = false;
+                }, 10 + cfg.duration);
 
             } else {
                 cxt.navNode.fadeIn(cfg.duration/1000, null, cfg.easing);
@@ -82,12 +92,17 @@ KISSY.add(function (S, Node, Anim, Base, Tool) {
             if (Tool.isSupportTransform 
                 && Tool.isSupportTransition) {
 
-                // animation to hide nav node
+                // 先隐藏 navNode
                 cxt.navNode.css(hideCss1);
 
-                // hide root node, should be after nav node hidden.
+                // 再隐藏 rootNode , 必须在 navNode 消失后隔段时间执行
                 S.later(function() {
-                    cxt.rootNode.hide();
+
+                    // 当前没有动画在执行
+                    if (!isCSS3Running) {
+                        cxt.rootNode.hide();
+                    }
+                    
                 }, cfg.duration);
 
             } else {

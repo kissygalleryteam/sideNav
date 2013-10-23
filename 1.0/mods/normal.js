@@ -1,5 +1,5 @@
 /**
- * fade animation
+ * normal
  */
 
 KISSY.add(function (S, Node, Anim, Base, Tool) {
