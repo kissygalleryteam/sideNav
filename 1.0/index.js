@@ -159,7 +159,7 @@ KISSY.add(function (S, Node, Anim, Base, Normal, Fade, Zoom, Rotate, Blur, Blink
         }
 
         // 构造配置
-        self.cfg = S.merge({}, defaultCfg, config);
+        self.cfg = S.mix(defaultCfg, config, true, null, true);
 
         // 初始化组件
         self.init();

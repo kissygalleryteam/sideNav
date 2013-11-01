@@ -941,7 +941,7 @@ KISSY.add('gallery/sideNav/1.0/index',function (S, Node, Anim, Base, Normal, Fad
         }
 
         // 构造配置
-        self.cfg = S.merge({}, defaultCfg, config);
+        self.cfg = S.mix(defaultCfg, config, true, null, true);
 
         // 初始化组件
         self.init();
