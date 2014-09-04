@@ -2,9 +2,10 @@
  * @fileoverview
  * @author
  **/
-KISSY.add(function (S, Node,Base) {
+KISSY.add(function (S) {
     var EMPTY = '';
-    var $ = Node.all;
+    var $ = S.require('node').all;
+    var Base = S.require('base');
 
     return Base.extend({
         initializer:function(){
@@ -15,7 +16,7 @@ KISSY.add(function (S, Node,Base) {
 
         }
     })
-}, {requires:['node', 'base']});
+});
 
 
 

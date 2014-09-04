@@ -1,0 +1,1 @@
+KISSY.config("modules",{"kg/sidenav/2.0.0/index":{requires:["node","base"]}});
