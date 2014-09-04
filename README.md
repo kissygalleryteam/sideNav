@@ -1,8 +1,13 @@
-sideNav
-=======
+## sidenav
 
-基于kissy的侧边导航组件，提供多种出场效果
+* 版本：2.0.0
+* 教程：[http://gallery.kissyui.com/sidenav/2.0.0/guide/index.html](http://gallery.kissyui.com/sidenav/2.0.0/guide/index.html)
+* demo：[http://gallery.kissyui.com/sidenav/2.0.0/demo/index.html](http://gallery.kissyui.com/sidenav/2.0.0/demo/index.html)
 
-文档: [https://github.com/songxc/sideNav/blob/master/1.0/guide/index.md](https://github.com/songxc/sideNav/blob/master/1.0/guide/index.md)
+## changelog
 
-Demo: [http://gallery.kissyui.com/sideNav/1.0/demo/index.html](http://gallery.kissyui.com/sideNav/1.0/demo/index.html)
+### V2.0.0
+
+    [!]
+
+
